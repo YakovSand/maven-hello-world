@@ -26,7 +26,9 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn -f myapp/pom.xml clean install
+        working-directory: myapp
+        run: mvn clean install
 
       - name: Run Tests
+        working-directory: myapp
         run: mvn test
