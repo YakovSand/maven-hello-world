@@ -122,7 +122,6 @@ jobs:
         helm upgrade --install myapp ../helm/myapp \
         --set image.tag=$VERSION \
         --set image.repository=$DOCKERHUB_REPO \
-        --wait
         # Verify deployment
         kubectl get all
         kubectl get pods

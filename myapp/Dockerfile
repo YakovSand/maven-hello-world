@@ -7,4 +7,6 @@ COPY ${JAR_FILE} /app.jar
 USER root
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+# ENTRYPOINT ["java","-jar","/app.jar"]
+# Run the application and keep the container running
+CMD java -jar /app.jar && tail -f /dev/null
