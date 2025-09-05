@@ -31,25 +31,48 @@ jobs:
 
     # 3. Update patch version
     - name: Update patch version
+      env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Fetch the full branch history to avoid push conflicts
+        git fetch origin master
+        git checkout master
+
         # Get current version from pom.xml
         CURRENT_VERSION=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
         echo "Current version: $CURRENT_VERSION"
+
         # Remove "-SNAPSHOT" if present
         BASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
         IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+
         # Increment PATCH version
         PATCH=$((PATCH+1))
         NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
         echo "New version: $NEW_VERSION"
+
         # Set new version in pom.xml
         mvn versions:set -DnewVersion="${NEW_VERSION}" -DgenerateBackupPoms=false
+
+        # Configure Git user
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git commit -am "ci: update patch version to ${NEW_VERSION}" || echo "No version changes"
-        # push the updated pom.xml
-        git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:master
-        # Set new version as environment variable
+
+        # Commit only if there are changes
+        if ! git diff --quiet; then
+          git add pom.xml
+          git commit -m "ci: update patch version to ${NEW_VERSION}"
+          
+          # Rebase on top of remote to avoid non-fast-forward
+          git pull --rebase origin main
+          
+          # Push changes using GITHUB_TOKEN
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
+        else
+          echo "No changes to commit"
+        fi
+
+        # Export VERSION for downstream steps
         echo "VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
     # 4. Build jar with Maven
