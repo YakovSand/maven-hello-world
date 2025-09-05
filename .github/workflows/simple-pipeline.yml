@@ -91,3 +91,38 @@ jobs:
         sleep 10
         docker logs myapp-test
         docker stop myapp-test
+    
+    # 10. Configure AWS credentials
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    
+    # 11. Install Helm
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    #12. Print Helm version
+    - name: Check Helm version
+      run: helm version
+
+    # 13. Configure kubeconfig for EKS
+    - name: Update kubeconfig for EKS
+      run: aws eks update-kubeconfig --name ${{ secrets.AWS_EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+    # 14. Deploy Helm chart to EKS  
+    - name: Deploy Helm Chart
+      run: |
+        echo "Deploying Helm chart with image from repo: $DOCKERHUB_REPO and tag: $VERSION" to EKS cluster
+        helm upgrade --install myapp ../helm/myapp \
+        --set image.tag=$VERSION \
+        --set image.repository=$DOCKERHUB_REPO \
+        --wait
+        # Verify deployment
+        kubectl get all
+        kubectl get pods
+        kubectl get svc
+        kubectl describe svc myapp

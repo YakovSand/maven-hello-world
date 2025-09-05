@@ -1,0 +1,4 @@
+apiVersion: v2
+name: myapp
+description: A simple Java Maven app deployed via Helm
+version: 0.1.0
