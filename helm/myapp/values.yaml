@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: actualdockerhubuser/repository # should be dynamically overriden in CI/CD
+  tag: "latest"  # default, might be overrided in CI/CD
+
+service:
+  type: ClusterIP
+  port: 8080
