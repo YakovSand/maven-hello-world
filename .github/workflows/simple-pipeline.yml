@@ -116,7 +116,9 @@ jobs:
     # 14. Deploy Helm chart to EKS  
     - name: Deploy Helm Chart
       run: |
-        echo "Deploying Helm chart with image from repo: $DOCKERHUB_REPO and tag: $VERSION" to EKS cluster
+        echo "Deploying Helm chart..."
+        echo "Image repository: $DOCKERHUB_REPO"
+        echo "Tag: $VERSION"
         helm upgrade --install myapp ../helm/myapp \
         --set image.tag=$VERSION \
         --set image.repository=$DOCKERHUB_REPO \
