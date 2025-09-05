@@ -64,10 +64,10 @@ jobs:
           git commit -m "ci: update patch version to ${NEW_VERSION}"
           
           # Rebase on top of remote to avoid non-fast-forward
-          git pull --rebase origin main
+          git pull --rebase origin master
           
           # Push changes using GITHUB_TOKEN
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:master
         else
           echo "No changes to commit"
         fi
